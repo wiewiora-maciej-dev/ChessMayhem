@@ -57,8 +57,8 @@ export function unhighlight() {
 export function createPromotionSelection(Piece0, Piece1, Piece2, Piece3, x, y) {
 
     let Pieces = [Piece0, Piece1, Piece2, Piece3];
-    console.log(Pieces);
-    console.log("x: "+x+" y: "+y)
+    // console.log(Pieces);
+    // console.log("x: "+x+" y: "+y)
     let promotionSelection = document.createElement("div");
     promotionSelection.classList.add("promotionSelection");
     promotionSelection.style.left = x;
@@ -73,4 +73,39 @@ export function createPromotionSelection(Piece0, Piece1, Piece2, Piece3, x, y) {
     }
 
     document.querySelector(".chessboard").appendChild(promotionSelection);
+}
+
+export function showGameOver(winner) {
+    // Tworzenie tła
+    let overlay = document.createElement("div");
+    overlay.classList.add("gameOverOverlay");
+
+    // Tworzenie okienka
+    let popup = document.createElement("div");
+    popup.classList.add("gameOverPopup");
+
+    // Tekst zwycięzcy
+    let title = document.createElement("h1");
+
+    if (winner === "W") {
+        title.textContent = "Białe wygrały!";
+    } else if (winner === "B") {
+        title.textContent = "Czarne wygrały!";
+    }
+
+    // Przycisk
+    let restartButton = document.createElement("button");
+    restartButton.textContent = "Zagraj ponownie";
+
+    restartButton.addEventListener("click", function() {
+        location.reload();
+    });
+
+    // Dodanie elementów do popupu
+    popup.appendChild(title);
+    popup.appendChild(restartButton);
+
+    // Dodanie popupu do strony
+    overlay.appendChild(popup);
+    document.body.appendChild(overlay);
 }

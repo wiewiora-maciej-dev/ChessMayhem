@@ -143,6 +143,10 @@ export function promotePawn(piece) {
 
 export function checkAllChecks() {
 
+    checkingPieces.length = 0;
+    whiteKInCheck = false;
+    blackKInCheck = false;
+
     for (let id = 0; id < 64; id++) {
 
         let piece = document.getElementById(id);
@@ -157,6 +161,10 @@ export function checkAllChecks() {
         let position = square(left, bottom);
 
         checkIfPieceChecking(id, position.x, position.y);
+    }
+
+    if (checkingPieces.length > 0) {
+        console.log(checkingPieces);
     }
 }
 
@@ -187,14 +195,14 @@ export function checkIfPieceChecking(id, x, y) {
                 square = "" + (x + 1) + (y - 1);
                 if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                 }
             }
             if (x > 1) {
                 square = "" + (x - 1) + (y - 1);
                 if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                 }
             }
         }
@@ -254,7 +262,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -266,7 +274,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -278,7 +286,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -290,7 +298,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -342,7 +350,7 @@ export function checkIfPieceChecking(id, x, y) {
                 let square = "" + targetX + targetY;
                 if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;;
                 }
             };
         };
@@ -402,7 +410,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -414,7 +422,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -426,7 +434,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -438,7 +446,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -550,7 +558,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -562,7 +570,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -574,7 +582,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -586,7 +594,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -598,7 +606,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -610,7 +618,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -622,7 +630,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -634,7 +642,7 @@ export function checkIfPieceChecking(id, x, y) {
                 if (squaresPC[square] === "W") {
                     if (squaresID[square] === whiteKing.id) {
                     checkingPieces.push(id);
-                    blackKInCheck = true;
+                    whiteKInCheck = true;
                     }
                     break;
                 } else if (squaresOC[square] === true){
@@ -642,7 +650,78 @@ export function checkIfPieceChecking(id, x, y) {
                 }
             }
         }
-    if (checkingPieces.length > 0){
-    console.log(checkingPieces);
-    }
+        if (pieceType === "kingW") {
+
+            let moves = [
+                [0, 1],
+                [1, 1],
+                [1, 0],
+                [1, -1],
+                [0, -1],
+                [-1, -1],
+                [-1, 0],
+                [-1, 1]
+            ];
+
+            for (let i = 0; i < moves.length; i++) {
+
+                let targetX = x + moves[i][0];
+                let targetY = y + moves[i][1];
+
+                if (
+                    targetX < 1 ||
+                    targetX > 8 ||
+                    targetY < 1 ||
+                    targetY > 8
+                ) {
+                    continue;
+                }
+
+                let targetSquare = "" + targetX + targetY;
+
+                if (squaresID[targetSquare] === blackKing.id) {
+
+                    checkingPieces.push(id);
+                    blackKInCheck = true;
+
+                }
+            }
+        }
+        if (pieceType === "kingB") {
+
+            let moves = [
+                [0, 1],
+                [1, 1],
+                [1, 0],
+                [1, -1],
+                [0, -1],
+                [-1, -1],
+                [-1, 0],
+                [-1, 1]
+            ];
+
+            for (let i = 0; i < moves.length; i++) {
+
+                let targetX = x + moves[i][0];
+                let targetY = y + moves[i][1];
+
+                if (
+                    targetX < 1 ||
+                    targetX > 8 ||
+                    targetY < 1 ||
+                    targetY > 8
+                ) {
+                    continue;
+                }
+
+                let targetSquare = "" + targetX + targetY;
+
+                if (squaresID[targetSquare] === whiteKing.id) {
+
+                    checkingPieces.push(id);
+                    whiteKInCheck = true;
+
+                }
+            }
+        }
 }

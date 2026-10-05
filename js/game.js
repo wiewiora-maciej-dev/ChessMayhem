@@ -1,8 +1,8 @@
 //----------------Importowanie----------------//
 import { gameRunning } from "./main.js";
-import { checkAllChecks, deletePiece, movePiece, promotePawn } from "./pieces.js";
-import { highlightSquare, square, writeSquare } from "./squares.js";
-import { unhighlight } from "./visual.js";
+import { blackKInCheck, checkAllChecks, checkingPieces, deletePiece, movePiece, promotePawn, whiteKInCheck } from "./pieces.js";
+import { highlightSquare, position, square, squaresID, squaresHL, writeSquare } from "./squares.js";
+import { unhighlight, showGameOver } from "./visual.js";
 //--------------------------------------------//
 
 //-------------------Zmienne------------------//
@@ -20,6 +20,7 @@ export let rookB1Moved = false;
 export let rookB2Moved = false;
 export let kingWMoved = false;
 export let kingBMoved = false;
+let moveColor = "W";
 //--------------------------------------------//
 
 export function runGame() {
@@ -34,6 +35,12 @@ export function runGame() {
             let ClassS = piece.classList[0];
             let BottomS = piece.style.bottom;
             let SquareS = square(LeftS, BottomS)
+            // console.log("moveColor:", moveColor);
+            // console.log("piece:", piece.classList[0]);
+            if (!piece.classList[0].endsWith(moveColor)) {
+                return;
+            }
+
             highlightSquare(id, ClassS, SquareS.x, SquareS.y);
             //console.log("Id: "+id+" Piece: "+ClassS+" Left: "+LeftS+ " Bottom: "+BottomS+" Position: "+SquareS.x + SquareS.y);
             pieceChosen = true;
@@ -88,23 +95,25 @@ function pawnMoved2SQuares(piece, x1, y1, x2, y2) {
 function pieceRules(piece, previousSquere, targetSquere) {  
     let targetColumn = targetSquere.x;
     let targetRow = targetSquere.y;
-    
-    // console.log("=== EN PASSANT DEBUG ===");
-    // console.log("piece:", piece.classList[0]);
-    // console.log("target:", targetColumn, targetRow);
-    // console.log("pawnMoved2:", pawnMoved2);
-    
+    let previousColumn = previousSquere.x;
+    let previousRow = previousSquere.y;
+
+    // ==========================================
+    // PROMOCJA
+    // ==========================================
+
     if (
-    piece.classList[0] === "pawnW" ||
-    piece.classList[0] === "pawnB"
+        piece.classList[0] === "pawnW" ||
+        piece.classList[0] === "pawnB"
     ) {
-        if (
-            (piece.classList[0] === "pawnW" || piece.classList[0] === "pawnB") &&
-            (targetRow === 8 || targetRow === 1)
-        ) {
-            //console.log("promote");
+        if (targetRow === 8 || targetRow === 1) {
             promotePawn(piece);
         }
+
+        // ==========================================
+        // EN PASSANT - BIAŁY
+        // ==========================================
+
         if (
             piece.classList[0] === "pawnW" &&
             pawnMoved2.state === true &&
@@ -112,17 +121,108 @@ function pieceRules(piece, previousSquere, targetSquere) {
             targetColumn === pawnMoved2.column &&
             targetRow === pawnMoved2.row + 1
         ) {
-            //console.log("EN PASSANT BIAŁY");
-            writeSquare(null, previousSquere.x, previousSquere.y);
-            movePiece(pieceIDChosen, targetColumn, targetRow);
-            writeSquare(pieceIDChosen, targetSquere.x, targetSquere.y);
-            deletePiece(targetSquere.x, targetSquere.y - 1);
-            writeSquare(null, targetSquere.x, targetSquere.y - 1);
+            writeSquare(null, previousColumn, previousRow);
 
-            pawnMoved2 = pawnMoved2SQuares( piece, previousSquere.x, previousSquere.y, targetSquere.x, targetSquere.y);
+            movePiece(
+                pieceIDChosen,
+                targetColumn,
+                targetRow
+            );
+
+            writeSquare(
+                pieceIDChosen,
+                targetColumn,
+                targetRow
+            );
+
+            deletePiece(
+                targetColumn,
+                targetRow - 1
+            );
+
+            writeSquare(
+                null,
+                targetColumn,
+                targetRow - 1
+            );
+
+            checkingPieces.length = 0;
+            checkAllChecks();
+
+            if (whiteKInCheck) {
+                console.log(
+                    "Nie można wykonać ruchu - biały król jest w szachu."
+                );
+
+                // cofnięcie en passant
+                writeSquare(
+                    null,
+                    targetColumn,
+                    targetRow
+                );
+
+                movePiece(
+                    pieceIDChosen,
+                    previousColumn,
+                    previousRow
+                );
+
+                writeSquare(
+                    pieceIDChosen,
+                    previousColumn,
+                    previousRow
+                );
+
+                // przywrócenie zbitego piona
+                let restoredPiece = document.createElement("div");
+
+                restoredPiece.id = pawnMoved2.column + pawnMoved2.row;
+                restoredPiece.classList.add("pawnB");
+                restoredPiece.classList.add("piece");
+
+                let restoredPosition = position(
+                    pawnMoved2.column,
+                    pawnMoved2.row
+                );
+
+                restoredPiece.style.left = restoredPosition.X + "px";
+                restoredPiece.style.bottom = restoredPosition.Y + "px";
+
+                document.querySelector(".chessboard").appendChild(
+                    restoredPiece
+                );
+
+                writeSquare(
+                    restoredPiece.id,
+                    pawnMoved2.column,
+                    pawnMoved2.row
+                );
+
+                runGame();
+
+                checkAllChecks();
+                unhighlight();
+
+                return;
+            }
+
+            pawnMoved2 = pawnMoved2SQuares(
+                piece,
+                previousColumn,
+                previousRow,
+                targetColumn,
+                targetRow
+            );
+
             unhighlight();
+            changeMoveColor();
             return;
         }
+
+        // ==========================================
+        // EN PASSANT - CZARNY
+        // ==========================================
+
         if (
             piece.classList[0] === "pawnB" &&
             pawnMoved2.state === true &&
@@ -130,32 +230,494 @@ function pieceRules(piece, previousSquere, targetSquere) {
             targetColumn === pawnMoved2.column &&
             targetRow === pawnMoved2.row - 1
         ) {
-            //console.log("EN PASSANT CZARNY");
-            writeSquare(null,previousSquere.x,previousSquere.y);
-            movePiece(pieceIDChosen,targetColumn,targetRow);
-            writeSquare(pieceIDChosen,targetSquere.x,targetSquere.y);
-            deletePiece(targetSquere.x, targetSquere.y + 1);
-            writeSquare(null, targetSquere.x, targetSquere.y + 1);
+            writeSquare(
+                null,
+                previousColumn,
+                previousRow
+            );
 
-            pawnMoved2 = pawnMoved2SQuares( piece, previousSquere.x, previousSquere.y, targetSquere.x, targetSquere.y);
+            movePiece(
+                pieceIDChosen,
+                targetColumn,
+                targetRow
+            );
+
+            writeSquare(
+                pieceIDChosen,
+                targetColumn,
+                targetRow
+            );
+
+            deletePiece(
+                targetColumn,
+                targetRow + 1
+            );
+
+            writeSquare(
+                null,
+                targetColumn,
+                targetRow + 1
+            );
+
+            checkingPieces.length = 0;
+            checkAllChecks();
+
+            if (blackKInCheck) {
+                console.log(
+                    "Nie można wykonać ruchu - czarny król jest w szachu."
+                );
+
+                // cofnięcie en passant
+                writeSquare(
+                    null,
+                    targetColumn,
+                    targetRow
+                );
+
+                movePiece(
+                    pieceIDChosen,
+                    previousColumn,
+                    previousRow
+                );
+
+                writeSquare(
+                    pieceIDChosen,
+                    previousColumn,
+                    previousRow
+                );
+
+                // przywrócenie zbitego piona
+                let restoredPiece = document.createElement("div");
+
+                restoredPiece.id = pawnMoved2.column + pawnMoved2.row;
+                restoredPiece.classList.add("pawnW");
+                restoredPiece.classList.add("piece");
+
+                let restoredPosition = position(
+                    pawnMoved2.column,
+                    pawnMoved2.row
+                );
+
+                restoredPiece.style.left = restoredPosition.X + "px";
+                restoredPiece.style.bottom = restoredPosition.Y + "px";
+
+                document.querySelector(".chessboard").appendChild(
+                    restoredPiece
+                );
+
+                writeSquare(
+                    restoredPiece.id,
+                    pawnMoved2.column,
+                    pawnMoved2.row
+                );
+
+                runGame();
+
+                checkAllChecks();
+                unhighlight();
+
+                return;
+            }
+
+            pawnMoved2 = pawnMoved2SQuares(
+                piece,
+                previousColumn,
+                previousRow,
+                targetColumn,
+                targetRow
+            );
+
             unhighlight();
+            changeMoveColor();
             return;
         }
     }
+
+    // ==========================================
+    // RUCH NA TO SAMO POLE
+    // ==========================================
+
     if (
-        targetSquere.x !== previousSquere.x ||
-        targetSquere.y !== previousSquere.y
+        targetColumn === previousColumn &&
+        targetRow === previousRow
     ) {
-        writeSquare(null,previousSquere.x,previousSquere.y);
-        movePiece(pieceIDChosen,targetColumn,targetRow);
-        writeSquare(pieceIDChosen,targetSquere.x,targetSquere.y);
-    } else {
         console.log("nie ruszono figury");
-        pawnMoved2 = pawnMoved2SQuares( piece, previousSquere.x, previousSquere.y, targetSquere.x, targetSquere.y);
         unhighlight();
         return;
     }
+
+    // ==========================================
+    // ZAPAMIĘTANIE BITEJ FIGURY
+    // ==========================================
+
+    let capturedPiece = document.getElementById(
+        squaresID["" + targetColumn + targetRow]
+    );
+
+    let capturedPieceHTML = null;
+
+    if (capturedPiece !== null) {
+        capturedPieceHTML = capturedPiece.outerHTML;
+    }
+
+    // ==========================================
+    // WYKONANIE RUCHU
+    // ==========================================
+
+    writeSquare(
+        null,
+        previousColumn,
+        previousRow
+    );
+
+    movePiece(
+        pieceIDChosen,
+        targetColumn,
+        targetRow
+    );
+
+    writeSquare(
+        pieceIDChosen,
+        targetColumn,
+        targetRow
+    );
+
+    // ==========================================
+    // SPRAWDZENIE SZACHA
+    // ==========================================
+
     checkAllChecks();
-    pawnMoved2 = pawnMoved2SQuares( piece, previousSquere.x, previousSquere.y, targetSquere.x, targetSquere.y);
+
+    let ownKingInCheck;
+
+    if (piece.classList[0].endsWith("W")) {
+        ownKingInCheck = whiteKInCheck;
+    } else {
+        ownKingInCheck = blackKInCheck;
+    }
+
+    // ==========================================
+    // RUCH NIELEGALNY
+    // ==========================================
+
+    if (ownKingInCheck) {
+
+        console.log(
+            "Ruch niedozwolony - własny król nadal jest w szachu."
+        );
+
+        // ------------------------------------------
+        // COFNIĘCIE BIJĄCEJ FIGURY
+        // ------------------------------------------
+
+        writeSquare(
+            null,
+            targetColumn,
+            targetRow
+        );
+
+        movePiece(
+            pieceIDChosen,
+            previousColumn,
+            previousRow
+        );
+
+        writeSquare(
+            pieceIDChosen,
+            previousColumn,
+            previousRow
+        );
+
+        // ------------------------------------------
+        // PRZYWRÓCENIE ZBITEJ FIGURY
+        // ------------------------------------------
+
+        if (capturedPieceHTML !== null) {
+
+            let temp = document.createElement("div");
+            temp.innerHTML = capturedPieceHTML;
+
+            let restoredPiece = temp.firstElementChild;
+
+            document.querySelector(".chessboard").appendChild(
+                restoredPiece
+            );
+
+            writeSquare(
+                restoredPiece.id,
+                targetColumn,
+                targetRow
+            );
+        }
+
+        // ------------------------------------------
+        // PONOWNE SPRAWDZENIE SZACHA
+        // ------------------------------------------
+
+        checkAllChecks();
+
+        // ------------------------------------------
+        // PONOWNE PODPIĘCIE EVENTÓW
+        // ------------------------------------------
+
+        runGame();
+
+        unhighlight();
+
+        return;
+    }
+
+    // ==========================================
+    // RUCH LEGALNY
+    // ==========================================
+
+    pawnMoved2 = pawnMoved2SQuares(
+        piece,
+        previousColumn,
+        previousRow,
+        targetColumn,
+        targetRow
+    );
+
     unhighlight();
+
+    changeMoveColor();
+
+    checkAllChecks();
+
+    if (moveColor === "W") {
+
+        if (whiteKInCheck) {
+
+            if (checkMate("W")) {
+                showGameOver("B");
+                return;
+            }
+        }
+
+    } else {
+
+        if (blackKInCheck) {
+
+            if (checkMate("B")) {
+                showGameOver("W");
+                return;
+            }
+        }
+    }
+}
+
+function changeMoveColor() {
+    if (moveColor === "W") {
+        moveColor = "B"
+    } else {
+        moveColor = "W"
+    }
+}
+
+function checkMate(color) {
+
+    let kingInCheck;
+
+    if (color === "W") {
+        kingInCheck = whiteKInCheck;
+    } else {
+        kingInCheck = blackKInCheck;
+    }
+
+    // Jeżeli król nie jest w szachu,
+    // nie może być mata.
+    if (!kingInCheck) {
+        return false;
+    }
+
+    console.log("Król " + color + " jest w szachu.");
+    console.log("Sprawdzam możliwe ruchy...");
+
+    // Pobieramy wszystkie figury danego koloru
+    let pieces = [];
+
+    document.querySelectorAll(".piece").forEach(function(piece) {
+
+        if (piece.classList[0].endsWith(color)) {
+            pieces.push(piece);
+        }
+
+    });
+
+    // Sprawdzamy każdą figurę
+    for (let i = 0; i < pieces.length; i++) {
+
+        let currentPiece = pieces[i];
+
+        let pieceLeft = currentPiece.style.left;
+        let pieceBottom = currentPiece.style.bottom;
+
+        let currentSquare = square(
+            pieceLeft,
+            pieceBottom
+        );
+
+        // Wygeneruj wszystkie możliwe ruchy tej figury
+        highlightSquare(
+            currentPiece.id,
+            currentPiece.classList[0],
+            currentSquare.x,
+            currentSquare.y
+        );
+
+        // Kopiujemy listę pól,
+        // żeby móc spokojnie ją przeglądać
+        let possibleMoves = Object.keys(squaresHL);
+
+        unhighlight();
+
+        // Sprawdzamy każde możliwe pole
+        for (let j = 0; j < possibleMoves.length; j++) {
+
+            let target = possibleMoves[j];
+
+            let targetColumn = Number(target.charAt(0));
+            let targetRow = Number(target.slice(1));
+
+            // Nie można wykonać ruchu na własne pole
+            if (
+                targetColumn === currentSquare.x &&
+                targetRow === currentSquare.y
+            ) {
+                continue;
+            }
+
+            // ==========================================
+            // ZAPIS STANU
+            // ==========================================
+
+            let capturedPiece = document.getElementById(
+                squaresID[target]
+            );
+
+            let capturedPieceHTML = null;
+
+            if (capturedPiece !== null) {
+                capturedPieceHTML = capturedPiece.outerHTML;
+            }
+
+            let oldPieceLeft = currentPiece.style.left;
+            let oldPieceBottom = currentPiece.style.bottom;
+
+            let oldPawnMoved2 = {
+                state: pawnMoved2.state,
+                color: pawnMoved2.color,
+                column: pawnMoved2.column,
+                row: pawnMoved2.row
+            };
+
+            // ==========================================
+            // WYKONANIE TESTOWEGO RUCHU
+            // ==========================================
+
+            writeSquare(
+                null,
+                currentSquare.x,
+                currentSquare.y
+            );
+
+            movePiece(
+                currentPiece.id,
+                targetColumn,
+                targetRow
+            );
+
+            writeSquare(
+                currentPiece.id,
+                targetColumn,
+                targetRow
+            );
+
+            // ==========================================
+            // SPRAWDZENIE SZACHA
+            // ==========================================
+
+            checkAllChecks();
+
+            let stillInCheck;
+
+            if (color === "W") {
+                stillInCheck = whiteKInCheck;
+            } else {
+                stillInCheck = blackKInCheck;
+            }
+
+            // ==========================================
+            // COFNIĘCIE TESTOWEGO RUCHU
+            // ==========================================
+
+            writeSquare(
+                null,
+                targetColumn,
+                targetRow
+            );
+
+            currentPiece.style.left = oldPieceLeft;
+            currentPiece.style.bottom = oldPieceBottom;
+
+            writeSquare(
+                currentPiece.id,
+                currentSquare.x,
+                currentSquare.y
+            );
+
+            // Przywrócenie zbitej figury
+            if (capturedPieceHTML !== null) {
+
+                let temp = document.createElement("div");
+
+                temp.innerHTML = capturedPieceHTML;
+
+                let restoredPiece =
+                    temp.firstElementChild;
+
+                document.querySelector(
+                    ".chessboard"
+                ).appendChild(restoredPiece);
+
+                writeSquare(
+                    restoredPiece.id,
+                    targetColumn,
+                    targetRow
+                );
+            }
+
+            pawnMoved2 = oldPawnMoved2;
+
+            checkAllChecks();
+
+            // ==========================================
+            // ZNALEZIONO LEGALNY RUCH
+            // ==========================================
+
+            if (!stillInCheck) {
+
+                console.log(
+                    "Jest przynajmniej jeden legalny ruch:",
+                    currentPiece.classList[0],
+                    currentSquare.x,
+                    currentSquare.y,
+                    "->",
+                    targetColumn,
+                    targetRow
+                );
+
+                return false;
+            }
+        }
+    }
+
+    // ==========================================
+    // NIE MA ŻADNEGO LEGALNEGO RUCHU
+    // ==========================================
+
+    console.log("MAT!");
+
+    return true;
 }
