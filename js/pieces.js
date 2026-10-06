@@ -2,7 +2,7 @@
 import { runGame } from "./game.js";
 import { gamemode } from "./main.js";
 import { ocupySquare, position, square, squaresID, squaresOC, squaresPC, writeSquare } from "./squares.js";
-import { createPromotionSelection, show } from "./visual.js";
+import { createPromotionSelection, show, showCheckingPieces } from "./visual.js";
 //--------------------------------------------//
 
 let pieceClass = {
@@ -136,9 +136,11 @@ export function promotePawn(piece) {
             );
 
             document.querySelector(".promotionSelection").remove();
-
+            checkAllChecks();
+            showCheckingPieces(checkingPieces);
         });
     });
+
 }
 
 export function checkAllChecks() {

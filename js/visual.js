@@ -109,3 +109,41 @@ export function showGameOver(winner) {
     overlay.appendChild(popup);
     document.body.appendChild(overlay);
 }
+
+export function showCheckingPieces(checkingPieces) {
+
+    checkingPieces.forEach(function(pieceID) {
+
+        let piece = document.getElementById(pieceID);
+
+        if (piece === null) {
+            return;
+        }
+
+        let warning = document.createElement("div");
+
+        warning.classList.add("checkWarning");
+
+        warning.textContent = "❗";
+
+        warning.style.left = (parseInt(piece.style.left) + 25) + "px";
+        warning.style.bottom = piece.style.bottom;
+
+        document.querySelector(".chessboard").appendChild(warning);
+
+        let warningHL = document.createElement("div");
+
+        warningHL.classList.add("boxWarning");
+        warningHL.style.backgroundColor = "rgb(255 0 0 / 45%)";
+
+        warningHL.style.left = piece.style.left;
+        warningHL.style.bottom = piece.style.bottom;
+
+        document.querySelector(".chessboard").appendChild(warningHL);
+
+        setTimeout(function() {
+            warning.remove();
+            warningHL.remove();
+        }, 1200);
+    });
+}
