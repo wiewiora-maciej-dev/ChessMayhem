@@ -1,5 +1,5 @@
-import { pawnsMoved } from "./pieces.js";
-import { pawnMoved2 } from "./game.js";
+import { blackKInCheck, pawnsMoved, whiteKInCheck } from "./pieces.js";
+import { kingBMoved, kingWMoved, pawnMoved2, rookA1Moved, rookA8Moved, rookH1Moved, rookH8Moved } from "./game.js";
 import { highlight, unhighlight } from "./visual.js";
 
 //-------------------Zmienne------------------//
@@ -580,6 +580,32 @@ export function highlightSquare(id, pieceType, x, y) {
                 squaresHL[square] = true;
             };
         };
+        if (!kingWMoved || !rookA1Moved) {
+            let square1 = "" + (x - 1) + y; // d1
+            let square2 = "" + (x - 2) + y; // c1
+            let square3 = "" + (x - 3) + y; // b1
+
+            if (
+                squaresOC[square1] !== true &&
+                squaresOC[square2] !== true &&
+                squaresOC[square3] !== true
+            ) {
+                squaresHL[square2] = true; // podświetla c1
+            }
+        }
+        if (!kingWMoved && !rookH1Moved) {
+            if (!whiteKInCheck) {
+                let square1 = "" + (x + 1) + y; // f1
+                let square2 = "" + (x + 2) + y; // g1
+
+                if (
+                    squaresOC[square1] !== true &&
+                    squaresOC[square2] !== true
+                ) {
+                    squaresHL[square2] = true; // podświetla g1
+                }
+            }
+        }
     };
     if (pieceType === "kingB") {
         let square = "" + x + y;
@@ -607,6 +633,34 @@ export function highlightSquare(id, pieceType, x, y) {
                 squaresHL[square] = true;
             };
         };
+        if (!kingBMoved && !rookA8Moved) {
+            if (!blackKInCheck) {
+
+                let square1 = "" + (x - 1) + y; // d8
+                let square2 = "" + (x - 2) + y; // c8
+                let square3 = "" + (x - 3) + y; // b8
+
+                if (
+                    squaresOC[square1] !== true &&
+                    squaresOC[square2] !== true &&
+                    squaresOC[square3] !== true
+                ) {
+                    squaresHL[square2] = true; // c8
+                }
+            }
+        }
+        if (!kingBMoved && !rookH8Moved) {
+            
+            let square1 = "" + (x + 1) + y; // f8
+            let square2 = "" + (x + 2) + y; // g8
+
+            if (
+                squaresOC[square1] !== true &&
+                squaresOC[square2] !== true
+            ) {
+                squaresHL[square2] = true; // g8
+            }
+        }
     };
     highlight();
     return;

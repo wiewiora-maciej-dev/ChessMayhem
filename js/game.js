@@ -1,7 +1,7 @@
 //----------------Importowanie----------------//
 import { gameRunning } from "./main.js";
 import { blackKInCheck, checkAllChecks, checkingPieces, deletePiece, movePiece, promotePawn, whiteKInCheck } from "./pieces.js";
-import { highlightSquare, position, square, squaresID, squaresHL, writeSquare } from "./squares.js";
+import { highlightSquare, position, square, squaresID, squaresHL, writeSquare, squaresOC } from "./squares.js";
 import { unhighlight, showGameOver, showCheckingPieces } from "./visual.js";
 //--------------------------------------------//
 
@@ -102,6 +102,240 @@ function pieceRules(piece, previousSquere, targetSquere) {
     let previousColumn = previousSquere.x;
     let previousRow = previousSquere.y;
 
+    // ROSZADA
+    if (
+        (piece.classList.contains("kingW") && !kingWMoved) ||
+        (piece.classList.contains("kingB") && !kingBMoved)
+    ) {
+
+        // =========================
+        // ROSZADA W LEWO
+        // =========================
+        if (
+            previousColumn === 5 &&
+            targetColumn === 3 &&
+            previousRow === targetRow
+        ) {
+
+            let rook;
+
+            if (piece.classList.contains("kingW")) {
+
+                if (rookA1Moved) return false;
+
+                rook = document.getElementById("0");
+
+                if (
+                    squaresOC["41"] === true ||
+                    squaresOC["31"] === true ||
+                    squaresOC["21"] === true
+                ) {
+                    return false;
+                }
+
+            } else {
+
+                if (rookA8Moved) return false;
+
+                rook = document.getElementById("24");
+
+                if (
+                    squaresOC["48"] === true ||
+                    squaresOC["38"] === true ||
+                    squaresOC["28"] === true
+                ) {
+                    return false;
+                }
+            }
+
+
+            // =========================
+            // SPRAWDZENIE POLA POŚREDNIEGO
+            // =========================
+
+            piece.style.left = ((previousColumn - 1) * 100 - 100) + "px";
+            writeSquare(piece.id, previousColumn - 1, previousRow)
+            checkAllChecks();
+
+            if (
+                whiteKInCheck || blackKInCheck
+            ) {
+                showCheckingPieces(checkingPieces);
+                piece.style.left = ((previousColumn) * 100 - 100) + "px";
+                writeSquare(null, previousColumn - 1, previousRow)
+                checkAllChecks();
+
+                return false;
+            }
+
+
+            // =========================
+            // SPRAWDZENIE POLA KOŃCOWEGO
+            // =========================
+
+            piece.style.left = ((previousColumn - 2) * 100 - 100) + "px";
+            writeSquare(piece.id, previousColumn - 2, previousRow)
+            checkAllChecks();
+
+            if (
+                whiteKInCheck || blackKInCheck
+            ) {
+                showCheckingPieces(checkingPieces);
+                piece.style.left = ((previousColumn) * 100 - 100) + "px";
+                writeSquare(null, previousColumn - 1, previousRow)
+                writeSquare(null, previousColumn - 2, previousRow)
+                checkAllChecks();
+                kingWMoved = true;
+                rookA1Moved = true;
+                return false;
+            }
+
+
+            // =========================
+            // PRZESUNIĘCIE WIEŻY
+            // =========================
+
+            rook.style.left = ((previousColumn - 1) * 100 - 100) + "px";
+            writeSquare(rook.id, previousColumn - 1, previousRow)
+            writeSquare(null, previousColumn - 4, previousRow)
+            writeSquare(null, previousColumn, previousRow)
+            unhighlight();
+
+            checkAllChecks();
+
+            if (whiteKInCheck || blackKInCheck) {
+                showCheckingPieces(checkingPieces);
+            }
+
+            changeMoveColor();
+            return true;
+        }
+
+
+        // =========================
+        // ROSZADA W PRAWO
+        // =========================
+
+        if (
+            previousColumn === 5 &&
+            targetColumn === 7 &&
+            previousRow === targetRow
+        ) {
+
+            let rook;
+
+            if (piece.classList.contains("kingW")) {
+
+                if (rookH1Moved) return false;
+
+                rook = document.getElementById("7");
+
+                if (
+                    squaresOC["61"] === true ||
+                    squaresOC["71"] === true
+                ) {
+                    return false;
+                }
+
+            } else {
+
+                if (rookH8Moved) return false;
+
+                rook = document.getElementById("31");
+
+                if (
+                    squaresOC["68"] === true ||
+                    squaresOC["78"] === true
+                ) {
+                    return false;
+                }
+            }
+
+
+            // =========================
+            // SPRAWDZENIE POLA POŚREDNIEGO
+            // =========================
+
+            piece.style.left = ((previousColumn + 1) * 100 - 100) + "px";
+            writeSquare(piece.id, previousColumn + 1, previousRow);
+            checkAllChecks();
+
+            if (
+                (piece.classList.contains("kingW") && whiteKInCheck) ||
+                (piece.classList.contains("kingB") && blackKInCheck)
+            ) {
+
+                showCheckingPieces(checkingPieces);
+
+                writeSquare(null, previousColumn + 1, previousRow);
+                writeSquare(piece.id, previousColumn, previousRow);
+
+                piece.style.left = ((previousColumn) * 100 - 100) + "px";
+
+                checkAllChecks();
+
+                return false;
+            }
+
+
+            // =========================
+            // SPRAWDZENIE POLA KOŃCOWEGO
+            // =========================
+
+            // usuwamy króla z pola pośredniego
+            writeSquare(null, previousColumn + 1, previousRow);
+
+            piece.style.left = ((previousColumn + 2) * 100 - 100) + "px";
+            writeSquare(piece.id, previousColumn + 2, previousRow);
+            checkAllChecks();
+
+            if (
+                (piece.classList.contains("kingW") && whiteKInCheck) ||
+                (piece.classList.contains("kingB") && blackKInCheck)
+            ) {
+
+                showCheckingPieces(checkingPieces);
+
+                writeSquare(null, previousColumn + 2, previousRow);
+                writeSquare(piece.id, previousColumn, previousRow);
+
+                piece.style.left = ((previousColumn) * 100 - 100) + "px";
+
+                checkAllChecks();
+
+                return false;
+            }
+
+
+            // =========================
+            // PRZESUNIĘCIE WIEŻY
+            // =========================
+
+            rook.style.left = ((previousColumn + 1) * 100 - 100) + "px";
+
+            writeSquare(rook.id, previousColumn + 1, previousRow);
+
+            // usuwamy starą pozycję wieży
+            writeSquare(null, previousColumn + 3, previousRow);
+
+            // usuwamy starą pozycję króla
+            writeSquare(null, previousColumn, previousRow);
+
+            unhighlight();
+
+            checkAllChecks();
+
+            if (
+                (piece.classList.contains("kingW") && whiteKInCheck) ||
+                (piece.classList.contains("kingB") && blackKInCheck)
+            ) {
+                showCheckingPieces(checkingPieces);
+            }
+
+            changeMoveColor();
+            return true;
+        }
+    }
 
     // ==========================================
     // PROMOCJA
@@ -616,6 +850,30 @@ function pieceRules(piece, previousSquere, targetSquere) {
         targetColumn,
         targetRow
     );
+
+    if (piece.classList.contains("kingW")) {
+        kingWMoved = true;
+    }
+
+    if (piece.classList.contains("kingB")) {
+        kingBMoved = true;
+    }
+
+    if (piece.id === "0") {
+        rookA1Moved = true;
+    }
+
+    if (piece.id === "7") {
+        rookH1Moved = true;
+    }
+
+    if (piece.id === "24") {
+        rookA8Moved = true;
+    }
+
+    if (piece.id === "31") {
+        rookH8Moved = true;
+    }
 
 
     unhighlight();
