@@ -1,7 +1,7 @@
 # Feedback(2026-09-10):
 
 ## General:
-- Przydałoby się info o tym jak to uruchomić w reaadme, to e trzeba sobie odpalić jakiś serwer do .js bo inaczej sypie errorami CORS itd. Można też ułatwić cały setup robiąc package.json i jakiś podstawowy skrypt, np. 'run' albo 'dev'.
+- Przydałoby się info o tym jak to uruchomić w reaadme, to że trzeba sobie odpalić jakiś serwer do .js bo inaczej sypie errorami CORS itd. Można też ułatwić cały setup robiąc package.json i jakiś podstawowy skrypt, np. 'run' albo 'dev'.
 - Fajnie byłoby się trzymać jednego języka, ograniczyć literówki, przynajmniej w takich miejscach jak nazwy plików :)
 
 
